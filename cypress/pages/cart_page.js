@@ -1,5 +1,5 @@
 class cartpage {
-  verify_something(title, qty) {
+  verify_cart_details(title, qty) {
     cy.contains("tr.woocommerce-cart-form__cart-item td", title)
       .closest("tr") // Go up to the closest <tr> (the row containing the <td>)
       .within(() => {

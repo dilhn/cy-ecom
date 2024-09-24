@@ -45,7 +45,7 @@ describe("test e-com web", () => {
 
     productdetails.get_product_details().then((details) => {
       productdetails.click_view_cart_btn();
-      cart.verify_something(details.title, details.qty);
+      cart.verify_cart_details(details.title, details.qty);
     });
   });
 });
