@@ -1,37 +1,50 @@
 class storepage {
+  elements = {
+    label_header: "header > h1",
+    textbox_search_field: ".woocommerce-product-search > input.search-field",
+    btn_search: ".woocommerce-product-search > button",
+    label_product_title: "ul.products > li > .astra-shop-summary-wrap > a > h2",
+    label_product_title1: ".astra-shop-summary-wrap > a > h2",
+    label_product_price: ".astra-shop-summary-wrap > .price",
+    list_products: "ul.products",
+    //list_products_alt: "ul.products > li",
+    text_result_count: ".woocommerce-result-count",
+    dropdown_product_cat: "#product_cat",
+    productThumbnail: (rpi) =>
+      `ul.products > li:nth-child(${rpi}) > .astra-shop-thumbnail-wrap`,
+  };
+
   verify_header() {
     // -- verify navigation to store
     // -- is successful (by verifying header text)
-    cy.get("header > h1").should("be.visible").and("contain.text", "Store");
+    cy.get(this.elements.label_header)
+      .should("be.visible")
+      .and("contain.text", "Store");
   }
   type_and_search(text) {
     // -- type search criteria in search field
-    cy.get(".woocommerce-product-search > input.search-field")
-      .should("be.visible")
-      .type(text);
+    cy.get(this.elements.textbox_search_field).should("be.visible").type(text);
   }
   click_search_button() {
     // -- click search button
-    cy.get(".woocommerce-product-search > button").should("be.visible").click();
+    cy.get(this.elements.btn_search).should("be.visible").click();
   }
   verify_search_results_include_search_text(text) {
     const normalized = text.toLowerCase();
     // change search criteria to lowercase
 
     // -- verify ALL the search results include 'search criteria' regardless of Case
-    cy.get("ul.products > li > .astra-shop-summary-wrap > a > h2").each(
-      ($el) => {
-        cy.wrap($el)
-          .invoke("text")
-          .then((text) => {
-            expect(text.toLowerCase()).to.include(normalized);
-          });
-      }
-    );
+    cy.get(this.elements.label_product_title1).each(($el) => {
+      cy.wrap($el)
+        .invoke("text")
+        .then((text) => {
+          expect(text.toLowerCase()).to.include(normalized);
+        });
+    });
   }
   get_search_result_count() {
     return cy
-      .get("ul.products")
+      .get(this.elements.list_products)
       .children()
       .then(($children) => {
         const childCount = $children.length;
@@ -55,7 +68,7 @@ class storepage {
   verify_search_result_count() {
     // -- verify the text : 'showing all <count> results' is equal to actual search result count
     this.get_search_result_count().then((count) => {
-      cy.get(".woocommerce-result-count")
+      cy.get(this.elements.text_result_count)
         .should("be.visible")
         .and("contain.text", count);
     });
@@ -63,7 +76,7 @@ class storepage {
 
   select_random_filter() {
     // -- select a random option from filters dropdown
-    cy.get("#product_cat")
+    cy.get(this.elements.dropdown_product_cat)
       .find("option")
       .then(($options) => {
         const randomIndex =
@@ -75,7 +88,7 @@ class storepage {
   get_filter_count() {
     // -- get selected filter's count from display text
     return cy
-      .get("#product_cat")
+      .get(this.elements.dropdown_product_cat)
       .should("be.visible")
       .find("option:selected")
       .invoke("text")
@@ -96,48 +109,50 @@ class storepage {
   }
 
   get_random_product_info() {
-    return cy.get("ul.products > li").then(($lis) => {
-      const count = $lis.length;
-      const randomIndex = Math.floor(Math.random() * count) + 1;
-      // random index between 1 to maximum number of <li> elements (zero (0) is excluded)
-      let productInfo = {};
+    return cy
+      .get(this.elements.list_products)
+      .children()
+      .then(($lis) => {
+        const count = $lis.length;
+        const randomIndex = Math.floor(Math.random() * count) + 1;
+        // random index between 1 to maximum number of <li> elements (zero (0) is excluded)
+        let productInfo = {};
 
-      return (
-        cy
-          .wrap($lis)
-          .eq(randomIndex - 1)
-          // -1 to avoid zero-based indexing (otherwise if randomindex == 3 then li(4) will be considered)
-          .within(() => {
-            productInfo.index = randomIndex;
-            cy.get(".astra-shop-summary-wrap > a > h2")
-              .invoke("text")
-              .then((title) => {
-                productInfo.title = title.trim();
-                //cy.log("TITLE IS " + productInfo.title);
-              });
-            cy.get(".astra-shop-summary-wrap > .price")
-              .find("bdi")
-              // use 'find' to locate <bdi> because items for sale are located as '.price > ins > .woocommerce-Price-amount > bdi'
-              // other items are located as '.price > .woocommerce-Price-amount > bdi'
-              .last()
-              // discounted products have discounted price in last <bdi>, other products have one <bdi> anyway
-              .invoke("text")
-              .then((price) => {
-                productInfo.price = price.trim();
-              });
-          })
-          .then(() => {
-            return productInfo;
-          })
-      );
-    });
+        return (
+          cy
+            .wrap($lis)
+            .eq(randomIndex - 1)
+            // -1 to avoid zero-based indexing (otherwise if randomindex == 3 then li(4) will be considered)
+            .within(() => {
+              productInfo.index = randomIndex;
+              cy.get(this.elements.label_product_title1)
+                // ".astra-shop-summary-wrap > a > h2"
+                .invoke("text")
+                .then((title) => {
+                  productInfo.title = title.trim();
+                  //cy.log("TITLE IS " + productInfo.title);
+                });
+              cy.get(this.elements.label_product_price)
+                .find("bdi")
+                // use 'find' to locate <bdi> because items for sale are located as '.price > ins > .woocommerce-Price-amount > bdi'
+                // other items are located as '.price > .woocommerce-Price-amount > bdi'
+                .last()
+                // discounted products have discounted price in last <bdi>, other products have one <bdi> anyway
+                .invoke("text")
+                .then((price) => {
+                  productInfo.price = price.trim();
+                });
+            })
+            .then(() => {
+              return productInfo;
+            })
+        );
+      });
   }
 
   click_random_product(rpi) {
     // -- Click the random product
-    cy.get(
-      `ul.products > li:nth-child(${rpi}) > .astra-shop-thumbnail-wrap`
-    ).click();
+    cy.get(this.elements.productThumbnail(rpi)).click();
   }
 
   /*

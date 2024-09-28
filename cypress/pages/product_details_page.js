@@ -1,8 +1,16 @@
 class productdetailspage {
+  elements = {
+    label_title: "div.entry-summary > h1.entry-title",
+    text_price: "div.entry-summary > p",
+    textbox_change_qty: "input[type='number']",
+    btn_add_to_cart: "button[name='add-to-cart']",
+    btn_view_cart: ".woocommerce-message > a.wc-forward",
+  };
+
   verify_product_title(rptitle) {
     // -- Verify that randomly selected product's title
     // on the store is equal to the selected product's title on product details page
-    cy.get("div.entry-summary > h1.entry-title")
+    cy.get(this.elements.label_title)
       .should("be.visible")
       .and("contain.text", rptitle);
   }
@@ -10,7 +18,7 @@ class productdetailspage {
   verify_product_price(rpprice) {
     // -- Verify that randomly selected product's price
     // on the store is equal to the selected product's price on product details page
-    cy.get("div.entry-summary > p")
+    cy.get(this.elements.text_price)
       .find("bdi")
       .last()
       .should("be.visible")
@@ -18,34 +26,34 @@ class productdetailspage {
   }
 
   verify_product_qty(count) {
-    cy.get('input[type="number"]').should("have.value", count);
+    cy.get(this.elements.textbox_change_qty).should("have.value", count);
   }
 
   adjust_product_quantity(count) {
     // -- click uparrow and increase product quantity 'n' times depending on count
     for (let i = 0; i < count; i++) {
-      cy.get('input[type="number"]').type("{uparrow}");
+      cy.get(this.elements.textbox_change_qty).type("{uparrow}");
     }
   }
   click_add_to_cart_btn() {
     // -- click 'add to cart' Button for the product
-    cy.get("button[name='add-to-cart']").click();
+    cy.get(this.elements.btn_add_to_cart).click();
   }
   click_view_cart_btn() {
     // click view cart button
-    cy.get(".woocommerce-message > a.wc-forward").should("be.visible").click();
+    cy.get(this.elements.btn_view_cart).should("be.visible").click();
   }
 
   get_product_details() {
     let details = {};
     return cy
-      .get("div.entry-summary > h1.entry-title")
+      .get(this.elements.label_title)
       .should("be.visible")
       .invoke("text")
       .then((text) => {
         details.title = text;
         return cy
-          .get('input[type="number"]')
+          .get(this.elements.textbox_change_qty)
           .should("be.visible")
           .invoke("val");
       })

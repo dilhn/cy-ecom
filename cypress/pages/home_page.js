@@ -1,10 +1,16 @@
 class homepage {
   // -- click navigation link 'store' on homepage
   //cy.get("ul#ast-hf-menu-1 > li > a").contains("Store").click();
+  elements = {
+    btn_shopnow: 'a[href="/store"]',
+    productListItem: "ul.products > li",
+    productThumbnail: (rpi) =>
+      `ul.products > li:nth-child(${rpi}) > .astra-shop-thumbnail-wrap`,
+  };
 
   click_shopnow_button() {
     // click 'Shop Now' button
-    cy.get('a[href="/store"]').click();
+    cy.get(this.elements.btn_shopnow).click();
   }
 
   click_random_featured_product_tmp() {
@@ -18,13 +24,13 @@ class homepage {
   click_random_featured_product(rpi) {
     // -- Click a random product from 'Featured Products'
     cy.get(
-      `ul.products > li:nth-child(${rpi}) > .astra-shop-thumbnail-wrap`
+      this.elements.productThumbnail(rpi)
       //`ul.products > li:nth-child(2) > .astra-shop-thumbnail-wrap`
     ).click();
   }
 
   get_featured_product_count() {
-    return cy.get("ul.products > li").then(($lis) => {
+    return cy.get(this.elements.productListItem).then(($lis) => {
       const count = $lis.length;
       const randomIndex = Math.floor(Math.random() * count) + 1;
       return randomIndex;
