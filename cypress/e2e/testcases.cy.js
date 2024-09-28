@@ -16,7 +16,7 @@ describe("test e-com web", () => {
     store.verify_search_result_count();
   });
 
-  it("can filter products on store", () => {
+  it("can filter by product categories on store", () => {
     home.click_shopnow_button();
     store.select_random_filter();
     store.verify_filter_count();
