@@ -1,0 +1,28 @@
+name: e-com tests run on chrome
+
+# events
+on:
+  # manual trigger
+  workflow_dispatch:
+
+jobs:
+  ui_tests_chrome:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1 checking out the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 2 install software
+      - name: Install Node JS
+        uses: actions/setup-node@v2
+        with: node-version:18
+
+      # 3 install dependencies
+      - name: Install Cypress
+        run: npm ci
+
+      # 4 run tests
+      - name: Run Cypress UI tests
+        run: npm run cypress:run
