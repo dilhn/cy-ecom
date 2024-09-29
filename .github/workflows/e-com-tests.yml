@@ -17,7 +17,7 @@ jobs:
       # 2 install software
       - name: Install Node JS
         uses: actions/setup-node@v2
-        with: node-version:18
+        with: node-version: 18
 
       # 3 install dependencies
       - name: Install Cypress
